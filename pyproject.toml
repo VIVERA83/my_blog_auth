@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "my-blog-auth"
+version = "0.1.0"
+description = ""
+authors = ["vivera83 <vivera83@yandex.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+uvicorn = "^0.23.2"
+python-jose = "^3.3.0"
+fastapi = "^0.103.0"
+pydantic-settings = "^2.0.3"
+email-validator = "^2.0.0.post2"
+sqlalchemy = "^2.0.20"
+redis = "^5.0.0"
+aiosmtplib = "^2.0.2"
+loguru = "^0.7.0"
+httpcore = "^0.17.3"
+itsdangerous = "^2.1.2"
+asyncpg = "^0.28.0"
+alembic = "^1.11.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
