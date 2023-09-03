@@ -106,12 +106,10 @@ class AuthorizationMiddleware(BaseHTTPMiddleware):
         """
         token = self.extract_token(request)
         await self.check_permission(token, request.url.path, request.method)
-        # if token.token:
-        #     await self.verify_token(token)
         self.update_request_state(request, token)
         return await call_next(request)
 
-    async def verify_token(self, token: Token):
+    async def verify_token(self, token: Token) -> bool:
         try:
             assert -2 == await self.main_app.store.cache.ttl(
                 token.token
@@ -124,7 +122,7 @@ class AuthorizationMiddleware(BaseHTTPMiddleware):
                 self.settings.auth_key.get_secret_value(),
                 self.settings.auth_algorithms,
             )
-            return
+            return True
         except JWSError as e:
             detail = status.HTTP_400_BAD_REQUEST
             message = e.args[0]
@@ -158,9 +156,11 @@ class AuthorizationMiddleware(BaseHTTPMiddleware):
                         if method.upper() in route.methods:
                             return True
             case "verification", "/auth/registration_user":
-                return True
+                if await self.verify_token(token):
+                    return True
             case "reset", "/auth/update_password":
-                return True
+                if await self.verify_token(token):
+                    return True
             case "access", "/auth/refresh":
                 return True
             case "access", path:
