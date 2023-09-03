@@ -1,6 +1,7 @@
 import logging
 from typing import Optional
 
+from base.type_hint import Public_access
 from core.settings import Settings
 from core.utils import Token
 from fastapi import FastAPI
@@ -21,6 +22,8 @@ class Application(FastAPI):
     redis: RedisAccessor
     postgres: Postgres
     logger: logging.Logger
+    docs_url: str
+    public_access: Public_access
 
 class Request(FastAPIRequest):
     """Переопределения Request.

@@ -2,6 +2,7 @@
 import logging
 from typing import Any, Optional
 
+from base.type_hint import Public_access, Url
 from core.settings import Settings
 from core.utils import METHODS, PUBLIC_ACCESS, Token
 from fastapi import FastAPI
@@ -25,11 +26,41 @@ class Application(FastAPI):
     redis: RedisAccessor
     postgres: Postgres
     logger: logging.Logger
+    docs_url: Url
+    public_access: Public_access
 
-    def __init__(self):
-        super().__init__()
-        self.free_access = PUBLIC_ACCESS
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._create_public_urls()
+        self.public_access.extend(PUBLIC_ACCESS)
         self.openapi = self._custom_openapi
+
+    def _create_public_urls(self):
+        self.public_access = []
+        self.public_access.append(
+            (
+                self.docs_url,
+                "GET",
+            )
+        )
+        self.public_access.append(
+            (
+                self.redoc_url,
+                "GET",
+            )
+        )
+        self.public_access.append(
+            (
+                self.openapi_url,
+                "GET",
+            )
+        )
+        self.public_access.append(
+            (
+                self.swagger_ui_oauth2_redirect_url,
+                "GET",
+            )
+        )
 
     def _custom_openapi(self) -> dict[str, Any]:
         """Обновления схемы в Openapi.
@@ -59,10 +90,10 @@ class Application(FastAPI):
         return self.openapi_schema
 
     def _is_free(self, url: str):
-        assert self.free_access is not None
+        assert self.public_access is not None
         is_free = False
         free_method = None
-        for f_p, f_m in self.free_access:
+        for f_p, f_m in self.public_access:
             if url == f_p:
                 is_free = True
                 free_method = f_m

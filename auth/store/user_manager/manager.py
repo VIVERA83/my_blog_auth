@@ -131,9 +131,7 @@ class UserManager(BaseAccessor):
             token: refresh token
             expire: number of seconds
         """
-        print(11111111, expire)
         await self.app.store.cache.set(token, user_id, expire + 5)
-        print(22222222222222)
         await self.app.store.auth.update_refresh_token(user_id)
 
     async def refresh(self, email: EmailStr) -> tuple[dict[USER_DATA_KEY, Any], str]:
@@ -149,10 +147,10 @@ class UserManager(BaseAccessor):
             objects: user data, new refresh token
         """
         user = await self.app.store.auth.get_user_by_email(email)
-        assert not user, "User not found"
+        assert user, "User not found"
         access, refresh = self._create_access_and_refresh_tokens(user.id, user.email)
         user = await self.app.store.auth.update_refresh_token(user.id, refresh)
-        assert not user, "User not found"
+        assert user, "User not found"
         return {**user.as_dict(), "access_token": access}, refresh
 
     async def reset_password(self, email: EmailStr):

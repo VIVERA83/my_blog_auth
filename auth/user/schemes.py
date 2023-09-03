@@ -162,8 +162,8 @@ class TokenSchema(BaseModel):
 
     token: str | None
     alg: str | None
-    exp: str | None
-    iat: str | None
+    exp: int | None
+    iat: int | None
     email: str | None
     user_id: str | None
     type: str

@@ -1,7 +1,8 @@
 """Модуль начальных настроек приложения."""
 import os
 
-from core.utils import ALGORITHM, ALGORITHMS, HEADERS, METHOD
+from base.type_hint import METHOD, HEADERS, ALGORITHM
+from core.utils import ALGORITHMS
 from pydantic import BaseModel, EmailStr, SecretStr, field_validator
 from pydantic_settings import BaseSettings
 

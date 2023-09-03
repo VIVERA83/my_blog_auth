@@ -11,7 +11,11 @@ from store.store import setup_store
 
 def setup_app() -> Application:
     """Место сборки приложения, подключения бд, роутов, и т.д"""
-    application = Application()
+    application = Application(
+        docs_url="/docs/auth",
+        redoc_url="/redoc/auth",
+        openapi_url="/docs/auth/openapi.json",
+    )
     application.settings = Settings()
     setup_logging(application)
     setup_store(application)

@@ -1,6 +1,5 @@
 import json
 from dataclasses import asdict, dataclass
-from typing import Literal
 
 from jose import jws
 from starlette import status
@@ -10,42 +9,14 @@ ALGORITHMS = [
     "HS256",
     "HS128",
 ]
-ALGORITHM = Literal[
-    "HS256",
-    "HS128",
-]
 
-METHOD = Literal[
-    "HEAD",
-    "OPTIONS",
-    "GET",
-    "POST",
-    "DELETE",
-    "PATCH",
-    "PUT",
-    "*",
-]
-HEADERS = Literal[
-    "Accept-Encoding",
-    "Content-Type",
-    "Set-Cookie",
-    "Access-Control-Allow-Headers",
-    "Access-Control-Allow-Origin",
-    "Authorization",
-    "*",
-]
 PUBLIC_ACCESS = [
-    ["/admin/*", "*"],
-    ["/openapi.json", "GET"],
-    ["/docs", "GET"],
-    ["/redoc", "GET"],
-    ["/docs/oauth2-redirect", "GET"],
-    ["/auth/create_user", "POST"],
-    ["/auth/login", "POST"],
-    ["/auth/refresh", "GET"],
-    ["/auth/reset_password", "GET"],
-    ["/auth/reset_password", "GET"],
-    ["/auth/registration_user/{token}", "GET"],
+    ("/admin/*", "*",),
+    ("/auth/create_user", "POST",),
+    ("/auth/login", "POST",),
+    ("/auth/refresh", "GET",),
+    ("/auth/reset_password", "GET",),
+    ("/auth/registration_user/{token}", "GET",),
 ]
 
 METHODS = [

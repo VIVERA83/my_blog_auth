@@ -31,7 +31,7 @@ from user.utils import (
     description_registration_user_by_link,
     description_registration_user_by_token,
 )
-
+from icecream import ic
 auth_route = APIRouter(prefix="/auth", tags=["AUTH"])
 
 
@@ -184,7 +184,7 @@ async def refresh(request: "Request", response: Response) -> Any:
     Returns:
         Response or HTTPException 401 UNAUTHORIZED
     """
-    token = request.cookies.get("access_token")
+    token = request.cookies.get("refresh")
     assert token, "Refresh token in cookie not found"
     user_data, refresh_token = await request.app.store.auth_manager.refresh(
         Token(token).email

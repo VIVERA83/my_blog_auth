@@ -2,11 +2,12 @@
 import re
 from datetime import datetime
 
+from base.type_hint import Public_access, METHOD
 from core.components import Application
 from core.components import Request as RequestApp
 from core.exception_handler import ExceptionHandler
 from core.settings import AuthorizationSettings, Settings
-from core.utils import PUBLIC_ACCESS, Token
+from core.utils import Token
 from fastapi import HTTPException, status
 from jose import JWSError, jws
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
@@ -15,11 +16,15 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp
-from store.cache.accessor import CacheAccessor
+from starlette.routing import Route
+from fastapi.routing import APIRoute
+from icecream import ic
 
 
 class ErrorHandlingMiddleware(BaseHTTPMiddleware):
     """Обработка ошибок при выполнении обработчиков запроса."""
+
+    public_access: Public_access
 
     def __init__(self, app: ASGIApp):
         super().__init__(app)
@@ -27,7 +32,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
         self.exception_handler = ExceptionHandler()
 
     async def dispatch(
-        self, request: RequestApp, call_next: RequestResponseEndpoint
+            self, request: RequestApp, call_next: RequestResponseEndpoint
     ) -> Response:
         """Обработка ошибок при исполнении handlers (views)."""
         try:
@@ -76,16 +81,17 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
 class AuthorizationMiddleware(BaseHTTPMiddleware):
     """Authorization MiddleWare."""
 
-    def __init__(self, app: ASGIApp, cache: CacheAccessor):
-        self.cache = cache
+    def __init__(self, app: ASGIApp, main_app: Application):
+        self.main_app = main_app
         self.settings = AuthorizationSettings()
-        self.public_access = PUBLIC_ACCESS
+        self.public_access = self.main_app.public_access.copy()
+        ic(self.public_access)
         super().__init__(app)
 
     async def dispatch(
-        self,
-        request: Request,
-        call_next: RequestResponseEndpoint,
+            self,
+            request: Request,
+            call_next: RequestResponseEndpoint,
     ) -> Response | None:
         """Checking access rights to a resource.
 
@@ -99,15 +105,15 @@ class AuthorizationMiddleware(BaseHTTPMiddleware):
             object: Response
         """
         token = self.extract_token(request)
-        self.check_permission(token.type, request)
-        if token.token:
-            await self.verify_token(token)
+        await self.check_permission(token, request.url.path, request.method)
+        # if token.token:
+        #     await self.verify_token(token)
         self.update_request_state(request, token)
         return await call_next(request)
 
     async def verify_token(self, token: Token):
         try:
-            assert -2 == await self.cache.ttl(
+            assert -2 == await self.main_app.store.cache.ttl(
                 token.token
             ), f"The token {token.type} is blocked, an attempt to log in using the old token, a new token is needed"
             assert token.exp > int(
@@ -127,30 +133,41 @@ class AuthorizationMiddleware(BaseHTTPMiddleware):
             message = e.args[0]
         raise HTTPException(detail, message)
 
-    def check_permission(self, token_type: str, request: "Request") -> bool:
+    async def check_permission(self, token: Token, path: str, method: str) -> bool:
         """Check permissions in the given path and token type.
 
         Args:
-            token_type: one of the 'recovery', verif', 'access'
-            request: Request
+            token: one of the 'recovery', verif', 'access'
+            path: endpoint path to check permissions
+            method: method to check permissions
         """
-        match token_type, request.url.path:
-            case "anonymous", request.url.path:
-                if self.public_access.count([request.url.path, request.method.upper()]):
+        match token.type, path:
+            case "anonymous", path:
+                method: METHOD.upper()
+                if self.public_access.count(
+                        (
+                                path,
+                                method.upper(),
+                        )
+                ):
                     return True
-                for route in request.app.routes:
-                    if re.match(route.path_regex, request.url.path):
-                        if request.method.upper() in route.methods:
+
+                for route in self.main_app.routes:
+                    route: Route | APIRoute
+                    if re.match(route.path_regex, path) and (route.path, method.upper,) in self.public_access:
+                        if method.upper() in route.methods:
                             return True
             case "verification", "/auth/registration_user":
                 return True
             case "reset", "/auth/update_password":
                 return True
+            case "access", "/auth/refresh":
+                return True
             case "access", path:
                 if path not in [
                     "/auth/create_user",
                     "/auth/registration_user",
-                ]:
+                ] and await self.verify_token(token):
                     return True
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
@@ -197,5 +214,5 @@ def setup_middleware(app: Application):
         allow_headers=app.settings.app_allow_headers,
         allow_credentials=app.settings.app_allow_credentials,
     )
-    app.add_middleware(AuthorizationMiddleware, cache=app.store.cache)
+    app.add_middleware(AuthorizationMiddleware, main_app=app)
     app.add_middleware(ErrorHandlingMiddleware)
