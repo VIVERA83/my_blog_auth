@@ -43,7 +43,9 @@ class UserAccessor(BaseAccessor):
         result = await self.app.postgres.query_execute(query)
         return result.scalar_one_or_none()
 
-    async def update_refresh_token(self, user_id: str, refresh_token: str = None) -> UserModel:
+    async def update_refresh_token(
+        self, user_id: str, refresh_token: str = None
+    ) -> UserModel:
         """Update the refresh token.
 
         Args:
@@ -101,5 +103,9 @@ class UserAccessor(BaseAccessor):
             object: user Query
         """
         return self.app.postgres.get_query_insert(
-            UserModel, name=name, email=email, password=password, is_superuser=is_superuser
+            UserModel,
+            name=name,
+            email=email,
+            password=password,
+            is_superuser=is_superuser,
         ).returning(UserModel)

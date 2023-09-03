@@ -47,7 +47,9 @@ class Settings(Base):
     app_logging: LogSettings = LogSettings()
 
     @field_validator("app_allow_headers", "app_allowed_origins", "app_allow_methods")
-    def to_list(cls, data: str | list[METHOD | HEADERS]) -> list[METHOD | HEADERS | str]:  # noqa
+    def to_list(
+        cls, data: str | list[METHOD | HEADERS]
+    ) -> list[METHOD | HEADERS | str]:  # noqa
         """Перевод строки в список."""
         if isinstance(data, str):
             return data.replace(" ", "").split(",")

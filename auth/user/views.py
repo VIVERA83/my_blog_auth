@@ -7,16 +7,30 @@ from core.utils import Token
 from fastapi import APIRouter, Depends, Response
 from fastapi.security import HTTPBearer
 from pydantic import EmailStr
-from user.schemes import (BaseUserSchema, OkSchema, TokenSchema,
-                          UserPasswordSchema, UserSchemaLogin, UserSchemaOut,
-                          UserSchemaRegistration, query_page_number,
-                          query_page_size, query_sort_created,
-                          query_sort_email, query_sort_modified,
-                          query_sort_name, query_sort_user_id)
-from user.utils import (description_create_user, description_login_user,
-                        description_logout_user, description_refresh_tokens,
-                        description_registration_user_by_link,
-                        description_registration_user_by_token)
+from user.schemes import (
+    BaseUserSchema,
+    OkSchema,
+    TokenSchema,
+    UserPasswordSchema,
+    UserSchemaLogin,
+    UserSchemaOut,
+    UserSchemaRegistration,
+    query_page_number,
+    query_page_size,
+    query_sort_created,
+    query_sort_email,
+    query_sort_modified,
+    query_sort_name,
+    query_sort_user_id,
+)
+from user.utils import (
+    description_create_user,
+    description_login_user,
+    description_logout_user,
+    description_refresh_tokens,
+    description_registration_user_by_link,
+    description_registration_user_by_token,
+)
 
 auth_route = APIRouter(prefix="/auth", tags=["AUTH"])
 
@@ -45,8 +59,12 @@ async def create_user(
     Returns:
         object: UserSchemaOut
     """
-    await request.app.store.auth_manager.create_user(user.name, user.email, user.password)
-    return OkSchema(message=f"Sent letter to {user.email}, for verification email addresses")
+    await request.app.store.auth_manager.create_user(
+        user.name, user.email, user.password
+    )
+    return OkSchema(
+        message=f"Sent letter to {user.email}, for verification email addresses"
+    )
 
 
 @auth_route.get(
@@ -67,7 +85,9 @@ async def user_registration(request: "Request", response: Response) -> Any:
         response: Response
     """
     token = request.state.token
-    user_data, refresh_token = await request.app.store.auth_manager.user_registration(token.email)
+    user_data, refresh_token = await request.app.store.auth_manager.user_registration(
+        token.email
+    )
     response.set_cookie(key="refresh", value=refresh_token, httponly=True)
     return UserSchemaOut(**user_data)
 
@@ -79,7 +99,9 @@ async def user_registration(request: "Request", response: Response) -> Any:
     response_description="Анкетные данные пользователя, кроме секретных данных.",
     response_model=UserSchemaOut,
 )
-async def user_registration_by_link(request: Request, response: Response, token: str) -> Any:
+async def user_registration_by_link(
+    request: Request, response: Response, token: str
+) -> Any:
     """User registration by link verification.
 
     From the current moment, the user is registered and receives an account
@@ -91,7 +113,9 @@ async def user_registration_by_link(request: Request, response: Response, token:
         token: token for registration
     """
     token = Token(token)
-    user_data, refresh_token = await request.app.store.auth_manager.user_registration(token.email)
+    user_data, refresh_token = await request.app.store.auth_manager.user_registration(
+        token.email
+    )
     response.set_cookie(key="refresh", value=refresh_token, httponly=True)
     return UserSchemaOut(**user_data)
 
@@ -162,7 +186,9 @@ async def refresh(request: "Request", response: Response) -> Any:
     """
     token = request.cookies.get("access_token")
     assert token, "Refresh token in cookie not found"
-    user_data, refresh_token = await request.app.store.auth_manager.refresh(Token(token).email)
+    user_data, refresh_token = await request.app.store.auth_manager.refresh(
+        Token(token).email
+    )
     response.set_cookie(key="refresh", value=refresh_token, httponly=True)
     return UserSchemaOut(**user_data)
 
@@ -172,7 +198,9 @@ async def refresh(request: "Request", response: Response) -> Any:
     summary="Проверить токен доступа",
     response_model=TokenSchema,
 )
-def get_token(request: Request, authorization=Depends(HTTPBearer(auto_error=True))) -> Any:  # noqa
+def get_token(
+    request: Request, authorization=Depends(HTTPBearer(auto_error=True))
+) -> Any:  # noqa
     """Returns Ok.
 
     Args:
@@ -209,7 +237,9 @@ async def reset_password(request: Request, email: EmailStr) -> Any:
     response_model=OkSchema,
 )
 async def update_password(request: Request, password: UserPasswordSchema) -> Any:
-    await request.app.store.auth.update_password(request.state.user_id, password.password)
+    await request.app.store.auth.update_password(
+        request.state.user_id, password.password
+    )
     return OkSchema(message="Password changed successfully")
 
 
@@ -237,4 +267,7 @@ async def get_users(
         if int(index) > 2 and value
     }
     users_data = await request.app.store.auth.get_users(page - 1, size, sorted_params)
-    return [BaseUserSchema(execute=["access_token"], **user.as_dict()) for user in users_data]
+    return [
+        BaseUserSchema(execute=["access_token"], **user.as_dict())
+        for user in users_data
+    ]

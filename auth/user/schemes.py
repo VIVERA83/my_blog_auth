@@ -102,7 +102,9 @@ class UserPasswordSchema(BaseSchema):
         Returns:
             str: password
         """
-        assert password_confirmation == values.data.get("password"), "passwords do not match"
+        assert password_confirmation == values.data.get(
+            "password"
+        ), "passwords do not match"
         return password_confirmation
 
 
@@ -144,7 +146,9 @@ class UserSchemaLogin(BaseModel):
         Returns:
             str:  Hashing password
         """
-        return SecretStr(sha256(password.get_secret_value().encode("utf-8")).hexdigest())
+        return SecretStr(
+            sha256(password.get_secret_value().encode("utf-8")).hexdigest()
+        )
 
 
 class RefreshSchema(BaseSchema):

@@ -104,9 +104,7 @@ class ExceptionHandler:
     def handler_integrity_error_error(self):
         """Обработчик исключения IntegrityError."""
         key, value = get_error_content(self.exception.args[0])
-        self.message = (
-            f"{key.capitalize()} is already in use, try other {key}, not these `{value}`"
-        )
+        self.message = f"{key.capitalize()} is already in use, try other {key}, not these `{value}`"
         self.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
         self.level = logging.INFO
 
@@ -145,4 +143,3 @@ class ExceptionHandler:
 def get_error_content(message: str) -> tuple[str, str]:
     m = re.findall(r"\((.*?)\)", message)
     return m[1], m[2]
-

@@ -6,12 +6,24 @@ from uuid import uuid4
 from base.base_accessor import BaseAccessor
 from base.type_hint import Sorted_order
 from core.settings import PostgresSettings
-from sqlalchemy import (DATETIME, TIMESTAMP, Delete, MetaData, Result, Select,
-                        UpdateBase, ValuesBase, delete, func, insert, select,
-                        text, update)
+from sqlalchemy import (
+    DATETIME,
+    TIMESTAMP,
+    Delete,
+    MetaData,
+    Result,
+    Select,
+    UpdateBase,
+    ValuesBase,
+    delete,
+    func,
+    insert,
+    select,
+    text,
+    update,
+)
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.orm.decl_api import DeclarativeAttributeIntercept
 
@@ -37,10 +49,14 @@ class Base(DeclarativeBase):
         default=uuid4,
     )
     created: Mapped[DATETIME] = mapped_column(
-        TIMESTAMP, server_default=func.current_timestamp(), onupdate=func.current_timestamp()
+        TIMESTAMP,
+        server_default=func.current_timestamp(),
+        onupdate=func.current_timestamp(),
     )
     modified: Mapped[DATETIME] = mapped_column(
-        TIMESTAMP, server_default=func.current_timestamp(), onupdate=func.current_timestamp()
+        TIMESTAMP,
+        server_default=func.current_timestamp(),
+        onupdate=func.current_timestamp(),
     )
 
     def as_dict(self) -> dict:
@@ -117,10 +133,16 @@ class Postgres(BaseAccessor):
         Returns:
             object: Query object
         """
-        return update(model).values(**update_data).where(text(f"{field_name} = '{field_value}'"))
+        return (
+            update(model)
+            .values(**update_data)
+            .where(text(f"{field_name} = '{field_value}'"))
+        )
 
     @staticmethod
-    def get_query_delete_by_field(model: Model, field_name: str, field_value: Any) -> Delete:
+    def get_query_delete_by_field(
+        model: Model, field_name: str, field_value: Any
+    ) -> Delete:
         """Get query delete records in Table.
 
         Args:
@@ -134,7 +156,9 @@ class Postgres(BaseAccessor):
         return delete(model).where(text(f"{field_name} = '{field_value}'"))
 
     @staticmethod
-    def get_query_select_by_field(model: Model, field_name: str, field_value: Any) -> Query:
+    def get_query_select_by_field(
+        model: Model, field_name: str, field_value: Any
+    ) -> Query:
         """Get a query by field name.
 
         Args:
@@ -191,5 +215,7 @@ class Postgres(BaseAccessor):
             query: Query object
         """
         query = select(model).limit(size).offset(page * size)
-        query_sort = ", ".join([f"{name} {value}" for name, value in sort_params.items()])
+        query_sort = ", ".join(
+            [f"{name} {value}" for name, value in sort_params.items()]
+        )
         return query.order_by(text(query_sort))

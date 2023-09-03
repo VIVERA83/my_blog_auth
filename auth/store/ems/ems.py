@@ -43,13 +43,19 @@ class EmailMessageService(BaseAccessor):
         ), "EmailMessageService, Authorization  error host={host}, message={message}".format(
             host=self._settings.ems_host, message=response.message
         )
-        self.logger.info("Connected to SMTP server: {smtp}".format(smtp=self._settings.ems_host))
-        self.logger.info("SMTP server response message: {msg}".format(msg=response.message))
+        self.logger.info(
+            "Connected to SMTP server: {smtp}".format(smtp=self._settings.ems_host)
+        )
+        self.logger.info(
+            "SMTP server response message: {msg}".format(msg=response.message)
+        )
 
     async def disconnect(self):
         if self._smtp.is_connected:
             self._smtp.close()
-        self.logger.info("Disconnect SMTP server: {smtp}".format(smtp=self._settings.ems_host))
+        self.logger.info(
+            "Disconnect SMTP server: {smtp}".format(smtp=self._settings.ems_host)
+        )
 
     async def send(self, msg: EmailMessage):
         """Send an outgoing email with the user's credentials.
@@ -67,11 +73,11 @@ class EmailMessageService(BaseAccessor):
         assert not errors, message
 
     def create_email_message(
-            self,
-            email: EmailStr,
-            subject: str,
-            text: str,
-            html_text: str = None,
+        self,
+        email: EmailStr,
+        subject: str,
+        text: str,
+        html_text: str = None,
     ) -> EmailMessage:
         """Create a new email.
 
@@ -92,7 +98,7 @@ class EmailMessageService(BaseAccessor):
         return msg
 
     async def send_message_to_confirm_email(
-            self, email: EmailStr, name: str, token: str, link: str
+        self, email: EmailStr, name: str, token: str, link: str
     ):
         """Send message to confirm email."""
         subject = "Service My blog - Verifier of the email address"
@@ -102,7 +108,7 @@ class EmailMessageService(BaseAccessor):
                 "name": name,
                 "title": "Подтверждение адреса электронной почты",
                 "text": "Для завершения регистрации требуется подтвердить"
-                        " адрес электронной почты:",
+                " адрес электронной почты:",
                 "link": link,
                 "token": token,
                 "label": "подтвердить",
@@ -112,7 +118,7 @@ class EmailMessageService(BaseAccessor):
         await self.send(msg)
 
     async def send_message_to_reset_password(
-            self, email: EmailStr, name: str, token: str, link: str
+        self, email: EmailStr, name: str, token: str, link: str
     ):
         """Send message to confirm email."""
         subject = "Service My blog - Verifier of the email address"
@@ -122,8 +128,8 @@ class EmailMessageService(BaseAccessor):
                 "name": name,
                 "title": "Сброс пароля",
                 "text": "Для сброса пароля необходимо перейти по ссылке. "
-                        "Обратите внимание старый пароль будет изменен"
-                        " только в момент внесения нового",
+                "Обратите внимание старый пароль будет изменен"
+                " только в момент внесения нового",
                 "link": link,
                 "token": token,
                 "label": "Сбросить",

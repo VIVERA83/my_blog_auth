@@ -5,7 +5,6 @@ import uvicorn
 from core.settings import Settings
 from dotenv import load_dotenv
 
-
 if __name__ == "__main__":
     load_dotenv(os.path.join(os.getcwd(), "auth.env"))
     settings = Settings()

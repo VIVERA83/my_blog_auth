@@ -15,7 +15,9 @@ class CacheAccessor(BaseAccessor):
         Returns:
             bool: True if the cache was successfully
         """
-        return await self.app.redis.connector.set(name=name, value=value, ex=expires)  # noqa
+        return await self.app.redis.connector.set(
+            name=name, value=value, ex=expires
+        )  # noqa
 
     async def get(self, name: str) -> str | dict | None:
         """Get temporary data from the cache.

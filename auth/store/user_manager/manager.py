@@ -44,7 +44,9 @@ class UserManager(BaseAccessor):
             f"Resending an email is possible after {seconds} seconds"
         )
         user = await self.app.store.auth.get_user_by_email(email)
-        assert not user, f"Email is already in use, try other email address, not these '{email}'"
+        assert (
+            not user
+        ), f"Email is already in use, try other email address, not these '{email}'"
         token = self.app.store.token.create_verification_token(uuid4().hex, email)
         print("create verification token ", token)
         user_str = json.dumps(
@@ -56,9 +58,13 @@ class UserManager(BaseAccessor):
             }
         )
         await self.app.store.cache.set(email, user_str, self.expire)
-        await self.app.store.ems.send_message_to_confirm_email(email, name, token, link="test")
+        await self.app.store.ems.send_message_to_confirm_email(
+            email, name, token, link="test"
+        )
 
-    async def user_registration(self, email: EmailStr) -> tuple[dict[USER_DATA_KEY, Any], str]:
+    async def user_registration(
+        self, email: EmailStr
+    ) -> tuple[dict[USER_DATA_KEY, Any], str]:
         """Registration new user.
 
         Save in database user data, creates tokens."""
@@ -82,7 +88,9 @@ class UserManager(BaseAccessor):
                     ]  # query_user_blog]
                 ]
 
-                access, refresh = self._create_access_and_refresh_tokens(user.id, user.email)
+                access, refresh = self._create_access_and_refresh_tokens(
+                    user.id, user.email
+                )
                 await self.app.store.auth.update_refresh_token(user.id, refresh)
                 await session.commit()
                 await self.app.store.cache.delete(email)
@@ -179,7 +187,9 @@ class UserManager(BaseAccessor):
                 await self.app.store.cache.delete(user.email)
             raise e
 
-    def _create_access_and_refresh_tokens(self, user_id: str, email: EmailStr) -> tuple[str, str]:
+    def _create_access_and_refresh_tokens(
+        self, user_id: str, email: EmailStr
+    ) -> tuple[str, str]:
         """Create access, refresh tokens.
 
         Args:

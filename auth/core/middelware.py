@@ -9,8 +9,7 @@ from core.settings import AuthorizationSettings, Settings
 from core.utils import PUBLIC_ACCESS, Token
 from fastapi import HTTPException, status
 from jose import JWSError, jws
-from starlette.middleware.base import (BaseHTTPMiddleware,
-                                       RequestResponseEndpoint)
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
@@ -27,7 +26,9 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
         self.settings = Settings()
         self.exception_handler = ExceptionHandler()
 
-    async def dispatch(self, request: RequestApp, call_next: RequestResponseEndpoint) -> Response:
+    async def dispatch(
+        self, request: RequestApp, call_next: RequestResponseEndpoint
+    ) -> Response:
         """Обработка ошибок при исполнении handlers (views)."""
         try:
             self.is_endpoint(request)
@@ -35,7 +36,10 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
             return response
         except Exception as error:
             return self.exception_handler(
-                error, request.url, request.app.logger, self.settings.app_logging.traceback
+                error,
+                request.url,
+                request.app.logger,
+                self.settings.app_logging.traceback,
             )
 
     @staticmethod
@@ -148,7 +152,9 @@ class AuthorizationMiddleware(BaseHTTPMiddleware):
                     "/auth/registration_user",
                 ]:
                     return True
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
+        )
 
     @staticmethod
     def extract_token(request: "Request") -> "Token":
@@ -168,7 +174,9 @@ class AuthorizationMiddleware(BaseHTTPMiddleware):
             assert "Bearer" == bearer, "Bearer header not specified"
             assert token, "Token header not specified"
         except AssertionError as e:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.args[0])
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=e.args[0]
+            )
         return Token("".join(token))
 
     @staticmethod
