@@ -11,12 +11,30 @@ ALGORITHMS = [
 ]
 
 PUBLIC_ACCESS = [
-    ("/admin/*", "*",),
-    ("/auth/create_user", "POST",),
-    ("/auth/login", "POST",),
-    ("/auth/refresh", "GET",),
-    ("/auth/reset_password", "GET",),
-    ("/auth/registration_user/{token}", "GET",),
+    (
+        "/admin/*",
+        "*",
+    ),
+    (
+        "/auth/create_user",
+        "POST",
+    ),
+    (
+        "/auth/login",
+        "POST",
+    ),
+    (
+        "/auth/refresh",
+        "GET",
+    ),
+    (
+        "/auth/reset_password",
+        "GET",
+    ),
+    (
+        "/auth/registration_user/{token}",
+        "GET",
+    ),
 ]
 
 METHODS = [

@@ -7,31 +7,17 @@ from core.utils import Token
 from fastapi import APIRouter, Depends, Response
 from fastapi.security import HTTPBearer
 from pydantic import EmailStr
-from user.schemes import (
-    BaseUserSchema,
-    OkSchema,
-    TokenSchema,
-    UserPasswordSchema,
-    UserSchemaLogin,
-    UserSchemaOut,
-    UserSchemaRegistration,
-    query_page_number,
-    query_page_size,
-    query_sort_created,
-    query_sort_email,
-    query_sort_modified,
-    query_sort_name,
-    query_sort_user_id,
-)
-from user.utils import (
-    description_create_user,
-    description_login_user,
-    description_logout_user,
-    description_refresh_tokens,
-    description_registration_user_by_link,
-    description_registration_user_by_token,
-)
-from icecream import ic
+from user.schemes import (BaseUserSchema, OkSchema, TokenSchema,
+                          UserPasswordSchema, UserSchemaLogin, UserSchemaOut,
+                          UserSchemaRegistration, query_page_number,
+                          query_page_size, query_sort_created,
+                          query_sort_email, query_sort_modified,
+                          query_sort_name, query_sort_user_id)
+from user.utils import (description_create_user, description_login_user,
+                        description_logout_user, description_refresh_tokens,
+                        description_registration_user_by_link,
+                        description_registration_user_by_token)
+
 auth_route = APIRouter(prefix="/auth", tags=["AUTH"])
 
 

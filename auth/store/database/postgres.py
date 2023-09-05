@@ -6,24 +6,12 @@ from uuid import uuid4
 from base.base_accessor import BaseAccessor
 from base.type_hint import Sorted_order
 from core.settings import PostgresSettings
-from sqlalchemy import (
-    DATETIME,
-    TIMESTAMP,
-    Delete,
-    MetaData,
-    Result,
-    Select,
-    UpdateBase,
-    ValuesBase,
-    delete,
-    func,
-    insert,
-    select,
-    text,
-    update,
-)
+from sqlalchemy import (DATETIME, TIMESTAMP, Delete, MetaData, Result, Select,
+                        UpdateBase, ValuesBase, delete, func, insert, select,
+                        text, update)
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
+                                    create_async_engine)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.orm.decl_api import DeclarativeAttributeIntercept
 

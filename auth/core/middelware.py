@@ -2,23 +2,23 @@
 import re
 from datetime import datetime
 
-from base.type_hint import Public_access, METHOD
+from base.type_hint import METHOD, Public_access
 from core.components import Application
 from core.components import Request as RequestApp
 from core.exception_handler import ExceptionHandler
 from core.settings import AuthorizationSettings, Settings
 from core.utils import Token
 from fastapi import HTTPException, status
+from fastapi.routing import APIRoute
 from jose import JWSError, jws
-from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.middleware.base import (BaseHTTPMiddleware,
+                                       RequestResponseEndpoint)
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
-from starlette.types import ASGIApp
 from starlette.routing import Route
-from fastapi.routing import APIRoute
-from icecream import ic
+from starlette.types import ASGIApp
 
 
 class ErrorHandlingMiddleware(BaseHTTPMiddleware):
@@ -32,7 +32,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
         self.exception_handler = ExceptionHandler()
 
     async def dispatch(
-            self, request: RequestApp, call_next: RequestResponseEndpoint
+        self, request: RequestApp, call_next: RequestResponseEndpoint
     ) -> Response:
         """Обработка ошибок при исполнении handlers (views)."""
         try:
@@ -85,13 +85,12 @@ class AuthorizationMiddleware(BaseHTTPMiddleware):
         self.main_app = main_app
         self.settings = AuthorizationSettings()
         self.public_access = self.main_app.public_access.copy()
-        ic(self.public_access)
         super().__init__(app)
 
     async def dispatch(
-            self,
-            request: Request,
-            call_next: RequestResponseEndpoint,
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
     ) -> Response | None:
         """Checking access rights to a resource.
 
@@ -143,16 +142,23 @@ class AuthorizationMiddleware(BaseHTTPMiddleware):
             case "anonymous", path:
                 method: METHOD.upper()
                 if self.public_access.count(
-                        (
-                                path,
-                                method.upper(),
-                        )
+                    (
+                        path,
+                        method.upper(),
+                    )
                 ):
                     return True
 
                 for route in self.main_app.routes:
                     route: Route | APIRoute
-                    if re.match(route.path_regex, path) and (route.path, method.upper,) in self.public_access:
+                    if (
+                        re.match(route.path_regex, path)
+                        and (
+                            route.path,
+                            method.upper,
+                        )
+                        in self.public_access
+                    ):
                         if method.upper() in route.methods:
                             return True
             case "verification", "/auth/registration_user":

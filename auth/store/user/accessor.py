@@ -39,7 +39,9 @@ class UserAccessor(BaseAccessor):
         Returns:
             optional: user model
         """
-        query = self.app.postgres.get_query_select_by_field(UserModel, "email", email.lower())
+        query = self.app.postgres.get_query_select_by_field(
+            UserModel, "email", email.lower()
+        )
         result = await self.app.postgres.query_execute(query)
         return result.scalar_one_or_none()
 
