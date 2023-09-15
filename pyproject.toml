@@ -20,6 +20,7 @@ httpcore = "^0.17.3"
 itsdangerous = "^2.1.2"
 asyncpg = "^0.28.0"
 alembic = "^1.11.3"
+aiohttp = "^3.8.5"
 
 
 [tool.poetry.group.dev.dependencies]

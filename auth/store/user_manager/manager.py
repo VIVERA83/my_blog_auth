@@ -48,7 +48,7 @@ class UserManager(BaseAccessor):
             not user
         ), f"Email is already in use, try other email address, not these '{email}'"
         token = self.app.store.token.create_verification_token(uuid4().hex, email)
-        print("create verification token ", token)
+        self.app.logger.info(f"create verification token: {token}")
         user_str = json.dumps(
             {
                 "name": name or "Пользователь",
